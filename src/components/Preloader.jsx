@@ -1,6 +1,8 @@
 // src/components/Preloader.js
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet, Dimensions, Text } from 'react-native';
+import { View, Image ,ActivityIndicator, StyleSheet, Dimensions, Text } from 'react-native';
+import logo from '../assets/images/logo.png'
+import { ScreenWidth } from 'react-native-elements/dist/helpers';
 
 const { width, height } = Dimensions.get('window');
 
@@ -9,8 +11,8 @@ const Preloader = ({ visible }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.appName}>Electric Car</Text>
-      <ActivityIndicator size="large" color="#A30000" />
+    <Image source={logo} style={styles.logo} ></Image>
+    {/* <ActivityIndicator size="large" color="#A30000" /> */}
     </View>
   );
 };
@@ -34,6 +36,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontWeight: 'bold',
   },
+
+  logo:{
+    width:ScreenWidth*0.4,
+    height:ScreenWidth*0.4,
+    
+      },
+
 });
 
 export default Preloader;

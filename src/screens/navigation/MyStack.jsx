@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../HomeScreen';
 import SelectedCar from '../SelectedCar';
 import { Text, View, StyleSheet } from 'react-native';
+import TestScreen from '../TestScreen';
 
 // Define a custom header component
 const CustomHeader = () => (
@@ -17,17 +18,17 @@ const Stack = createNativeStackNavigator();
 const MyStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Home"
+      initialRouteName="home"
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#101218', // Header background color
+          backgroundColor: '#4dad00', 
         },
-        headerTintColor: '#FFFFFF', // Header text color
+        headerTintColor: '#FFFFFF', 
         headerTitleStyle: {
           fontWeight: 'bold',
           fontSize: 20,
         },
-        headerTitleAlign: 'center', // Center the title
+        headerTitleAlign: 'center', 
       }}
     >
       <Stack.Screen
@@ -38,6 +39,15 @@ const MyStack = () => {
         name="SelectedCar"
         component={SelectedCar}
       />
+
+
+<Stack.Screen
+        name="TestScreen"
+        component={TestScreen}
+      />
+
+
+
     </Stack.Navigator>
   );
 };
