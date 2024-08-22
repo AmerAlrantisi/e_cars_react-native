@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../HomeScreen';
 import SelectedCar from '../SelectedCar';
 import { Text, View, StyleSheet } from 'react-native';
-import TestScreen from '../TestScreen';
+import WebsiteScreen from '../WebsiteScreen';
 
 // Define a custom header component
 const CustomHeader = () => (
@@ -40,11 +40,13 @@ const MyStack = () => {
         component={SelectedCar}
       />
 
-
 <Stack.Screen
-        name="TestScreen"
-        component={TestScreen}
+        name="WebsiteScreen"
+        component={WebsiteScreen}
       />
+
+
+
 
 
 

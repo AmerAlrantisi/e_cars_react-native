@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Dimensions } from 'react-native';
+import CalculatorButton from '../components/CalculatorButton';
+import Contact from '../components/contact';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -13,6 +15,10 @@ const categoryDisplayNames = {
   sparePartsStore: 'متجر قطع غيار',
   maintenanceCenter: 'مركز صيانة',
   chargingStation: 'محطة شحن',
+  services: 'خدمات',
+  winches: 'ونشات',
+  chargeonroad: 'شحن على الطريق',
+  dryclean: 'دراي كلين',
 };
 
 const allowedCategories = [
@@ -22,13 +28,24 @@ const allowedCategories = [
   'sparePartsStore',
   'maintenanceCenter',
   'chargingStation',
+  'services',
+  'winches',
+  'chargeonroad',
+  'dryclean',
 ];
 
-const SelectedCar = ({ route }) => {
+const SelectedCar = ({ route, navigation }) => {
   const { car = {} } = route.params || {};
   const [selectedLocation, setSelectedLocation] = useState(car.locations[0] || {});
   const [visibleCategory, setVisibleCategory] = useState(null);
   const [showDetails, setShowDetails] = useState({});
+
+  useEffect(() => {
+    // Set the header title to the selected car name
+    if (car.carname) {
+      navigation.setOptions({ title: car.carname });
+    }
+  }, [car.carname, navigation]);
 
   const handleLocationChange = (locationName) => {
     const foundLocation = car.locations.find(location => location.locationName === locationName);
@@ -63,71 +80,114 @@ const SelectedCar = ({ route }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.carContainer}>
-        {/* <Text style={styles.carTitle}>{car.carname}</Text> */}
-        {car.logoImage && <Image source={{ uri: car.logoImage.asset.url }} style={styles.image} />}
-      </View>
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.carContainer}>
+          {car.logoImage && <Image source={{ uri: car.logoImage.asset.url }} style={styles.image} />}
+        </View>
 
-      <View style={styles.dropdownContainer}>
-        <Picker
-          selectedValue={selectedLocation.locationName}
-          style={styles.dropdown}
-          onValueChange={(itemValue) => handleLocationChange(itemValue)}
-        >
-          {car.locations.map((location, index) => (
-            <Picker.Item key={index} label={location.locationName} value={location.locationName} />
-          ))}
-        </Picker>
-      </View>
+        <View style={styles.dropdownContainer}>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={selectedLocation.locationName}
+              style={styles.dropdown}
+              onValueChange={(itemValue) => handleLocationChange(itemValue)}
+            >
+              {car.locations.map((location, index) => (
+                <Picker.Item key={index} label={location.locationName} value={location.locationName} />
+              ))}
+            </Picker>
+          </View>
+        </View>
 
-      {allowedCategories.map((category, index) => (
-        selectedLocation[category] && (
-          <View key={index}>
-            <TouchableOpacity onPress={() => toggleCategoryVisibility(category)}>
-              <View style={styles.toggleButton}>
-                <Text style={styles.toggleText}>{categoryDisplayNames[category]}</Text>
-              </View>
-            </TouchableOpacity>
-            {visibleCategory === category && (
-              <View>
-                {selectedLocation[category].map((store, storeIndex) => (
-                  <View key={storeIndex}>
-                    <TouchableOpacity onPress={() => toggleDetails(`${category}_${storeIndex}`)}>
-                      <View style={styles.detailsBox1}>
-                        <Text style={styles.detailsLabel}>{store.StoreName}</Text>
-                      </View>
-                    </TouchableOpacity>
-                    {showDetails[`${category}_${storeIndex}`] && (
-                      <View style={styles.detailsContainer}>
-                        {store.storeInfo.map((info, infoIndex) => (
-                          <View key={infoIndex} style={styles.detailsBox}>
-                            <Text style={styles.detailsLabel}>Store Full Name:</Text>
-                            <Text style={styles.detailsText}>{info.StoreFullName}</Text>
-                            <TouchableOpacity onPress={() => handleAddressPress(info.location)}>
-                              <Text style={styles.detailsLabel}>Address:</Text>
-                              <Text style={styles.detailsText}>{info.location}</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.detailsLabel}>Price:</Text>
-                            <Text style={styles.detailsText}>{info.price}</Text>
-                            <TouchableOpacity onPress={() => handlePhonePress(info.phoneNumber)}>
-                              <Text style={styles.detailsLabel}>Phone:</Text>
-                              <Text style={styles.detailsText}>{info.phoneNumber}</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.detailsLabel}>Working Hours:</Text>
-                            <Text style={styles.detailsText2}>{info.time}</Text>
+        {allowedCategories.map((category, index) => (
+          selectedLocation[category] && (
+            <View key={index}>
+              <TouchableOpacity onPress={() => toggleCategoryVisibility(category)}>
+                <View style={styles.toggleButton}>
+                  <Text style={styles.toggleText}>{categoryDisplayNames[category]}</Text>
+                </View>
+              </TouchableOpacity>
+              {visibleCategory === category && (
+                <View>
+                  {category === 'services' ? (
+                    selectedLocation.services.map((service, serviceIndex) => (
+                      <View key={serviceIndex}>
+                        {service.components.map((component, componentIndex) => (
+                          <View key={componentIndex}>
+                            {Object.keys(component).map((subCategory, subCategoryIndex) => (
+                              <View key={subCategoryIndex}>
+                                <TouchableOpacity onPress={() => toggleDetails(`${category}_${serviceIndex}_${componentIndex}_${subCategoryIndex}`)}>
+                                  <View style={styles.detailsBox1}>
+                                    <Text style={styles.detailsLabel}>{subCategory}</Text>
+                                  </View>
+                                </TouchableOpacity>
+                                {showDetails[`${category}_${serviceIndex}_${componentIndex}_${subCategoryIndex}`] && (
+                                  <View style={styles.detailsContainer}>
+                                    {component[subCategory].map((info, infoIndex) => (
+                                      <View key={infoIndex} style={styles.detailsBox}>
+                                        <Text style={styles.detailsLabel}>Store Full Name:</Text>
+                                        <Text style={styles.detailsText}>{info.StoreFullName}</Text>
+                                        <TouchableOpacity onPress={() => handleAddressPress(info.location)}>
+                                          <Text style={styles.detailsLabel}>Address:</Text>
+                                          <Text style={styles.detailsText}>{info.location}</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => handlePhonePress(info.phoneNumber)}>
+                                          <Text style={styles.detailsLabel}>Phone:</Text>
+                                          <Text style={styles.detailsText}>{info.phoneNumber}</Text>
+                                        </TouchableOpacity>
+                                      </View>
+                                    ))}
+                                  </View>
+                                )}
+                              </View>
+                            ))}
                           </View>
                         ))}
                       </View>
-                    )}
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        )
-      ))}
-    </ScrollView>
+                    ))
+                  ) : (
+                    selectedLocation[category].map((store, storeIndex) => (
+                      <View key={storeIndex}>
+                        <TouchableOpacity onPress={() => toggleDetails(`${category}_${storeIndex}`)}>
+                          <View style={styles.detailsBox1}>
+                            <Text style={styles.detailsLabel}>{store.StoreName}</Text>
+                          </View>
+                        </TouchableOpacity>
+                        {showDetails[`${category}_${storeIndex}`] && (
+                          <View style={styles.detailsContainer}>
+                            {store.storeInfo.map((info, infoIndex) => (
+                              <View key={infoIndex} style={styles.detailsBox}>
+                                <Text style={styles.detailsLabel}>Store Full Name:</Text>
+                                <Text style={styles.detailsText}>{info.StoreFullName}</Text>
+                                <TouchableOpacity onPress={() => handleAddressPress(info.location)}>
+                                  <Text style={styles.detailsLabel}>Address:</Text>
+                                  <Text style={styles.detailsText}>{info.location}</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.detailsLabel}>Price:</Text>
+                                <Text style={styles.detailsText}>{info.price}</Text>
+                                <TouchableOpacity onPress={() => handlePhonePress(info.phoneNumber)}>
+                                  <Text style={styles.detailsLabel}>Phone:</Text>
+                                  <Text style={styles.detailsText}>{info.phoneNumber}</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.detailsLabel}>Working Hours:</Text>
+                                <Text style={styles.detailsText2}>{info.time}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    ))
+                  )}
+                </View>
+              )}
+            </View>
+          )
+        ))}
+      </ScrollView>
+      <CalculatorButton />
+      <Contact />
+    </View>
   );
 };
 
@@ -146,11 +206,6 @@ const styles = StyleSheet.create({
     width: screenWidth * 1.1,
     marginBottom: screenHeight * 0.02,
   },
-  carTitle: {
-    fontSize: screenWidth * 0.05,
-    fontWeight: 'bold',
-    marginBottom: screenHeight * 0.01,
-  },
   image: {
     width: screenWidth * 0.5,
     height: screenHeight * 0.17,
@@ -158,18 +213,23 @@ const styles = StyleSheet.create({
     marginBottom: screenHeight * 0.01,
   },
   dropdownContainer: {
-    width: screenWidth * 0.667, // Adjust the width as needed
+    width: screenWidth * 0.667,
     marginBottom: screenHeight * 0.02,
   },
+  pickerWrapper: {
+    borderRadius: screenWidth * 0.04, 
+    overflow: 'hidden', 
+    borderWidth: 1, 
+    borderColor: '#ccc', 
+  },
   dropdown: {
-    height: screenHeight * 0.05,
+    height: screenHeight * 0.08,
     width: '100%',
     color: 'black',
     backgroundColor: 'white',
-    marginBottom: screenHeight * 0.02,
   },
   toggleButton: {
-    backgroundColor: '#326c03',
+    backgroundColor: '#66FF00',
     paddingVertical: screenHeight * 0.015,
     paddingHorizontal: screenWidth * 0.04,
     borderRadius: screenWidth * 0.0333,
@@ -178,7 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   toggleText: {
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold',
     fontSize: screenWidth * 0.0427,
   },

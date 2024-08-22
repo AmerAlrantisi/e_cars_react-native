@@ -2,9 +2,14 @@ export const homeData = () => {
   return `*[_type == "home"]{
     name,
     title,
+     images[]{
+      asset->{
+        url
+      }
+    },
     cars[]{
       carname,
-        logoImage {
+      logoImage {
         asset->{
           url
         }
@@ -21,7 +26,7 @@ export const homeData = () => {
             time
           }
         },
-         maintenanceCenter[]{
+        maintenanceCenter[]{
           StoreName,
           storeInfo[]{
             StoreFullName,
@@ -51,7 +56,7 @@ export const homeData = () => {
             time
           }
         },
-         chargerStore[]{
+        chargerStore[]{
           StoreName,
           storeInfo[]{
             StoreFullName,
@@ -61,7 +66,7 @@ export const homeData = () => {
             time
           }
         },
-         carShowroom[]{
+        carShowroom[]{
           StoreName,
           storeInfo[]{
             StoreFullName,
@@ -70,7 +75,27 @@ export const homeData = () => {
             location,
             time
           }
+        },
+        services[]{
+          components[]{
+            winches[]{
+              StoreFullName,
+              phoneNumber,
+              location
+            },
+            chargeonroad[]{
+              StoreFullName,
+              phoneNumber,
+              location
+            },
+            dryclean[]{
+              StoreFullName,
+              phoneNumber,
+              location
+            }
+          }
         }
-      }}
+      }
+    }
   }`;
 };
