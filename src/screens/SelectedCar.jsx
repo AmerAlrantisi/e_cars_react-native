@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { Dimensions } from 'react-native';
 import CalculatorButton from '../components/CalculatorButton';
 import Contact from '../components/contact';
+import telephone from '../assets/images/telephone.png';
+import location from '../assets/images/location.png';
+import placeholder from '../assets/images/placeholder.png';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -41,11 +43,14 @@ const SelectedCar = ({ route, navigation }) => {
   const [showDetails, setShowDetails] = useState({});
 
   useEffect(() => {
-    // Set the header title to the selected car name
     if (car.carname) {
       navigation.setOptions({ title: car.carname });
     }
   }, [car.carname, navigation]);
+
+  useEffect(() => {
+    console.log('Selected Location Data:', selectedLocation);
+  }, [selectedLocation]);
 
   const handleLocationChange = (locationName) => {
     const foundLocation = car.locations.find(location => location.locationName === locationName);
@@ -56,9 +61,9 @@ const SelectedCar = ({ route, navigation }) => {
 
   const toggleCategoryVisibility = (category) => {
     if (visibleCategory === category) {
-      setVisibleCategory(null); // Close the currently open category
+      setVisibleCategory(null);
     } else {
-      setVisibleCategory(category); // Open the selected category
+      setVisibleCategory(category);
     }
   };
 
@@ -119,25 +124,29 @@ const SelectedCar = ({ route, navigation }) => {
                               <View key={subCategoryIndex}>
                                 <TouchableOpacity onPress={() => toggleDetails(`${category}_${serviceIndex}_${componentIndex}_${subCategoryIndex}`)}>
                                   <View style={styles.detailsBox1}>
-                                    <Text style={styles.detailsLabel}>{subCategory}</Text>
+                                    <Text style={styles.detailsLabel}>{categoryDisplayNames[subCategory]}</Text>
                                   </View>
                                 </TouchableOpacity>
                                 {showDetails[`${category}_${serviceIndex}_${componentIndex}_${subCategoryIndex}`] && (
                                   <View style={styles.detailsContainer}>
-                                    {component[subCategory].map((info, infoIndex) => (
-                                      <View key={infoIndex} style={styles.detailsBox}>
-                                        <Text style={styles.detailsLabel}>Store Full Name:</Text>
-                                        <Text style={styles.detailsText}>{info.StoreFullName}</Text>
-                                        <TouchableOpacity onPress={() => handleAddressPress(info.location)}>
-                                          <Text style={styles.detailsLabel}>Address:</Text>
-                                          <Text style={styles.detailsText}>{info.location}</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => handlePhonePress(info.phoneNumber)}>
-                                          <Text style={styles.detailsLabel}>Phone:</Text>
-                                          <Text style={styles.detailsText}>{info.phoneNumber}</Text>
-                                        </TouchableOpacity>
-                                      </View>
-                                    ))}
+                                    {component[subCategory]?.length > 0 ? (
+                                      component[subCategory].map((info, infoIndex) => (
+                                        <View key={infoIndex} style={styles.detailsBox}>
+                                          <Text style={styles.detailsLabel}>اسم الخدمة:</Text>
+                                          <Text style={styles.detailsLabel}>{info.ServiceStoreFullName || "N/A"}</Text>
+                                          <TouchableOpacity onPress={() => handleAddressPress(info.ServiceLocation)}>
+                                            <Text style={styles.detailsLabel}>الموقع:</Text>
+                                            <Text style={styles.detailsLabel}>{info.ServiceLocation || "N/A"}</Text>
+                                          </TouchableOpacity>
+                                          <TouchableOpacity onPress={() => handlePhonePress(info.ServicePhoneNumber)}>
+                                            <Text style={styles.detailsLabel}>تلفون:</Text>
+                                            <Text style={styles.detailsLabel}>{info.ServicePhoneNumber || "N/A"}</Text>
+                                          </TouchableOpacity>
+                                        </View>
+                                      ))
+                                    ) : (
+                                      <Text style={styles.detailsLabel}>No details available</Text>
+                                    )}
                                   </View>
                                 )}
                               </View>
@@ -158,20 +167,20 @@ const SelectedCar = ({ route, navigation }) => {
                           <View style={styles.detailsContainer}>
                             {store.storeInfo.map((info, infoIndex) => (
                               <View key={infoIndex} style={styles.detailsBox}>
-                                <Text style={styles.detailsLabel}>Store Full Name:</Text>
-                                <Text style={styles.detailsText}>{info.StoreFullName}</Text>
-                                <TouchableOpacity onPress={() => handleAddressPress(info.location)}>
-                                  <Text style={styles.detailsLabel}>Address:</Text>
-                                  <Text style={styles.detailsText}>{info.location}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.detailsLabel}>Price:</Text>
-                                <Text style={styles.detailsText}>{info.price}</Text>
-                                <TouchableOpacity onPress={() => handlePhonePress(info.phoneNumber)}>
-                                  <Text style={styles.detailsLabel}>Phone:</Text>
-                                  <Text style={styles.detailsText}>{info.phoneNumber}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.detailsLabel}>Working Hours:</Text>
-                                <Text style={styles.detailsText2}>{info.time}</Text>
+                                <Text style={styles.detailsText2}>{info.StoreFullName}</Text>
+                                <View style={styles.row1}>
+                                  <Text style={styles.cityName}>{info.locationFullName}</Text>
+                                  <Image source={placeholder} style={styles.icon}></Image>
+                                </View>
+                                <Text style={styles.detailsText3}>{info.time}</Text>
+                                <View style={styles.row}>
+                                  <TouchableOpacity style={styles.btn} onPress={() => handleAddressPress(info.location)}>
+                                    <Image source={location} style={styles.icon} />
+                                  </TouchableOpacity>
+                                  <TouchableOpacity style={styles.btn} onPress={() => handlePhonePress(info.phoneNumber)}>
+                                    <Image source={telephone} style={styles.icon} />
+                                  </TouchableOpacity>
+                                </View>
                               </View>
                             ))}
                           </View>
@@ -183,7 +192,11 @@ const SelectedCar = ({ route, navigation }) => {
               )}
             </View>
           )
-        ))}
+        )
+        
+        
+        
+        )}
       </ScrollView>
       <CalculatorButton />
       <Contact />
@@ -217,10 +230,10 @@ const styles = StyleSheet.create({
     marginBottom: screenHeight * 0.02,
   },
   pickerWrapper: {
-    borderRadius: screenWidth * 0.04, 
-    overflow: 'hidden', 
-    borderWidth: 1, 
-    borderColor: '#ccc', 
+    borderRadius: screenWidth * 0.04,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   dropdown: {
     height: screenHeight * 0.08,
@@ -262,18 +275,58 @@ const styles = StyleSheet.create({
   detailsLabel: {
     fontSize: screenWidth * 0.0427,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
   },
   detailsText: {
     fontSize: screenWidth * 0.0427,
-    borderBottomWidth: 0.4,
-    textAlign: 'center',
+    textAlign: 'right',
   },
   detailsText2: {
     fontSize: screenWidth * 0.0427,
-    textAlign: 'center',
+    textAlign: 'right',
+    fontWeight: 'bold'
   },
+
+  detailsText3: {
+    fontSize: screenWidth * 0.0427,
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+
+  icon: {
+    width: screenWidth * 0.05, // Adjust size as needed
+    height: screenWidth * 0.05, // Adjust size as needed
+    resizeMode: 'contain',
+    alignSelf: 'flex-end',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  btn: {
+    borderWidth: 1,
+    borderRadius: 20,
+    padding: 10,
+    paddingHorizontal: screenWidth * .15,
+
+  },
+  cityName: {
+    color: 'black',
+    fontSize: screenWidth * 0.0427,
+    textAlign: 'right',
+
+  },
+
+  row1: {
+
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginLeft: screenWidth * .68,
+    marginVertical: screenWidth * .03
+
+  },
+
 });
 
 export default SelectedCar;

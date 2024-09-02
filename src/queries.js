@@ -2,7 +2,7 @@ export const homeData = () => {
   return `*[_type == "home"]{
     name,
     title,
-     images[]{
+    images[]{
       asset->{
         url
       }
@@ -15,7 +15,7 @@ export const homeData = () => {
         }
       },
       locations[]{
-       locationName,
+        locationName,
         chargingStation[]{
           StoreName,
           storeInfo[]{
@@ -23,7 +23,8 @@ export const homeData = () => {
             price,
             phoneNumber,
             location,
-            time
+            time,
+            locationFullName
           }
         },
         maintenanceCenter[]{
@@ -33,7 +34,8 @@ export const homeData = () => {
             price,
             phoneNumber,
             location,
-            time
+            time,
+            locationFullName
           }
         },
         sparePartsStore[]{
@@ -43,7 +45,8 @@ export const homeData = () => {
             price,
             phoneNumber,
             location,
-            time
+            time,
+            locationFullName
           }
         },
         accessoriesStore[]{
@@ -53,7 +56,8 @@ export const homeData = () => {
             price,
             phoneNumber,
             location,
-            time
+            time,
+            locationFullName
           }
         },
         chargerStore[]{
@@ -63,7 +67,8 @@ export const homeData = () => {
             price,
             phoneNumber,
             location,
-            time
+            time,
+            locationFullName
           }
         },
         carShowroom[]{
@@ -73,25 +78,35 @@ export const homeData = () => {
             price,
             phoneNumber,
             location,
-            time
+            time,
+            locationFullName
           }
         },
         services[]{
           components[]{
             winches[]{
-              StoreFullName,
-              phoneNumber,
-              location
+              SName,
+              details[]{
+                ServiceStoreFullName,
+                ServicePhoneNumber,
+                ServiceLocation
+              }
             },
             chargeonroad[]{
-              StoreFullName,
-              phoneNumber,
-              location
+              SName,
+              details[]{
+                ServiceStoreFullName,
+                ServicePhoneNumber,
+                ServiceLocation
+              }
             },
             dryclean[]{
-              StoreFullName,
-              phoneNumber,
-              location
+              SName,
+              details[]{
+                ServiceStoreFullName,
+                ServicePhoneNumber,
+                ServiceLocation
+              }
             }
           }
         }
