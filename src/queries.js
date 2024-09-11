@@ -22,6 +22,8 @@ export const homeData = () => {
             StoreFullName,
             price,
             phoneNumber,
+                        phoneNumber2,
+
             location,
             time,
             locationFullName
@@ -33,6 +35,8 @@ export const homeData = () => {
             StoreFullName,
             price,
             phoneNumber,
+                        phoneNumber2,
+
             location,
             time,
             locationFullName
@@ -44,6 +48,8 @@ export const homeData = () => {
             StoreFullName,
             price,
             phoneNumber,
+                        phoneNumber2,
+
             location,
             time,
             locationFullName
@@ -55,6 +61,7 @@ export const homeData = () => {
             StoreFullName,
             price,
             phoneNumber,
+            phoneNumber2,
             location,
             time,
             locationFullName
@@ -66,6 +73,8 @@ export const homeData = () => {
             StoreFullName,
             price,
             phoneNumber,
+                        phoneNumber2,
+
             location,
             time,
             locationFullName
@@ -77,39 +86,43 @@ export const homeData = () => {
             StoreFullName,
             price,
             phoneNumber,
+                        phoneNumber2,
+
             location,
             time,
             locationFullName
           }
         },
-        services[]{
-          components[]{
-            winches[]{
-              SName,
-              details[]{
-                ServiceStoreFullName,
-                ServicePhoneNumber,
-                ServiceLocation
-              }
-            },
-            chargeonroad[]{
-              SName,
-              details[]{
-                ServiceStoreFullName,
-                ServicePhoneNumber,
-                ServiceLocation
-              }
-            },
-            dryclean[]{
-              SName,
-              details[]{
-                ServiceStoreFullName,
-                ServicePhoneNumber,
-                ServiceLocation
-              }
+   services[]{
+          winches[]{
+            SName,
+              ServiceStoreFullName,
+              ServicePhoneNumber,
+              ServiceLocation,
+              servicelocation,
+              time
+            
+          },
+          chargeonroad[]{
+            SName,
+            
+              ServiceStoreFullName,
+              ServicePhoneNumber,
+              ServiceLocation,
+              servicelocation,
+              time
+            
+          },
+          dryclean[]{
+            SName,
+              ServiceStoreFullName,
+              ServicePhoneNumber,
+              ServiceLocation,
+              servicelocation,
+              time
+            
+}
             }
-          }
-        }
       }
     }
   }`;

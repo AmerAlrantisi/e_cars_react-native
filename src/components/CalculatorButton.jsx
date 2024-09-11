@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Modal, Text, StyleSheet, TextInput, Button } from 'react-native';
+import { View, TouchableOpacity, Modal, Text, StyleSheet, TextInput, Button, Image } from 'react-native';
 import { Dimensions } from 'react-native';
+import keys from '../assets/images/cccv.png'; // Make sure the path is correct
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -23,14 +24,14 @@ const CalculatorButton = () => {
   const calculateResult = () => {
     const numKilos = parseFloat(kilos);
     if (!isNaN(numKilos)) {
-      setResult(numKilos * 19.3);
+      setResult(numKilos * 0.193);
     }
   };
 
   return (
     <>
       <TouchableOpacity style={styles.fab} onPress={openModal}>
-        <Text style={styles.fabText}>+</Text>
+        <Image source={keys} style={styles.keyImage} />
       </TouchableOpacity>
 
       <Modal
@@ -47,12 +48,12 @@ const CalculatorButton = () => {
               keyboardType="numeric"
               value={kilos}
               onChangeText={setKilos}
-              placeholder="عدد الكيلومترات"
+              placeholder="عدد الكيلو واط"
             />
             <Button title="حساب" onPress={calculateResult} color="#1d99ee" />
             {result !== null && (
               <Text style={styles.resultText}>
-                تكلفة الشحنة: {result.toFixed(2)}
+                تكلفة الشحنة: {result.toFixed(2)} دينار
               </Text>
             )}
             <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
@@ -82,11 +83,10 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
-  fabText: {
-    color: 'white',
-    fontSize: screenWidth * 0.1,
-    lineHeight: screenWidth * 0.12,
-    textAlign: 'center',
+  keyImage: {
+    width: screenWidth * 0.1, // Adjust size as needed
+    height: screenWidth * 0.1, // Adjust size as needed
+    resizeMode: 'contain', // This will ensure the image fits nicely
   },
   modalContainer: {
     flex: 1,
@@ -114,10 +114,14 @@ const styles = StyleSheet.create({
     padding: screenWidth * 0.03,
     marginBottom: screenHeight * 0.02,
     fontSize: screenWidth * 0.05,
+    fontFamily: 'arabicFont', // Ensure the font supports Arabic characters
+    writingDirection: 'rtl', // Ensures right-to-left text layout
   },
   resultText: {
     fontSize: screenWidth * 0.05,
     marginTop: screenHeight * 0.02,
+    fontFamily: 'arabicFont', // Ensure the font supports Arabic characters
+    writingDirection: 'rtl', // Ensures right-to-left text layout
   },
   closeButton: {
     marginTop: screenHeight * 0.02,

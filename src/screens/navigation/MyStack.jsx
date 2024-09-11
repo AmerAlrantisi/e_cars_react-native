@@ -5,6 +5,8 @@ import HomeScreen from '../HomeScreen';
 import SelectedCar from '../SelectedCar';
 import { Text, View, StyleSheet } from 'react-native';
 import WebsiteScreen from '../WebsiteScreen';
+import PrivacyPolicyScreen from '../PrivacyPolicyScreen';
+import TermsConditionsScreen from '../TermsConditionsScreen';
 
 // Define a custom header component
 const CustomHeader = () => (
@@ -35,6 +37,38 @@ const MyStack = () => {
         name="Home"
         component={HomeScreen}
       />
+
+<Stack.Screen
+  name="PrivacyPolicyScreen"
+  component={PrivacyPolicyScreen}
+  options={{
+    headerTitle: 'Privacy Policy ', // Set your header title here
+    headerStyle: {
+      backgroundColor: '#f5f5f5', // Optional: Set background color of the header
+    },
+    headerTitleStyle: {
+      fontSize: 20, // Optional: Customize font size
+      fontWeight: 'bold', // Optional: Customize font weight
+      color: '#333', // Optional: Set color of the title
+    },
+  }}
+/>
+
+<Stack.Screen
+  name="TermsConditionsScreen"
+  component={TermsConditionsScreen}
+  options={{
+    headerTitle: 'Terms and Conditions', // Set your header title here
+    headerStyle: {
+      backgroundColor: '#f5f5f5', // Optional: Set background color of the header
+    },
+    headerTitleStyle: {
+      fontSize: 20, // Optional: Customize font size
+      fontWeight: 'bold', // Optional: Customize font weight
+      color: '#333', // Optional: Set color of the title
+    },
+  }}
+/>
       <Stack.Screen
         name="SelectedCar"
         component={SelectedCar}

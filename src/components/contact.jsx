@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Modal, Text, StyleSheet, TouchableWithoutFeedback, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import icon from '../assets/images/world.png'
+import { View, TouchableOpacity, Modal, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Linking } from 'react-native';
+import icon from '../assets/images/facebook.png';
 import { Image } from 'react-native-elements';
 
 const screenWidth = Dimensions.get('window').width;
@@ -9,7 +8,6 @@ const screenHeight = Dimensions.get('window').height;
 
 const Contact = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const navigation = useNavigation(); // Access the navigation object
 
   const openModal = () => {
     setModalVisible(true);
@@ -19,9 +17,9 @@ const Contact = () => {
     setModalVisible(false);
   };
 
-  const navigateToWebsite = () => {
+  const openFacebookGroup = () => {
     closeModal(); // Close the modal before navigating
-    navigation.navigate('WebsiteScreen'); // Navigate to the Website screen
+    Linking.openURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi'); // Open Facebook group URL
   };
 
   return (
@@ -40,8 +38,8 @@ const Contact = () => {
           <View style={styles.modalContainer}>
             <TouchableWithoutFeedback onPress={() => {}}>
               <View style={styles.modalContent}>
-                <Text style={styles.title}>الموقع الالكتروني</Text>
-                <TouchableOpacity onPress={navigateToWebsite} style={styles.closeButton}>
+                <Text style={styles.title}>فيسبوك </Text>
+                <TouchableOpacity onPress={openFacebookGroup} style={styles.closeButton}>
                   <Text style={styles.closeButtonText}>زيارة</Text>
                 </TouchableOpacity>
               </View>
@@ -69,12 +67,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-  },
-  fabText: {
-    color: 'white',
-    fontSize: screenWidth * 0.1,
-    lineHeight: screenWidth * 0.12,
-    textAlign: 'center',
   },
   modalContainer: {
     flex: 1,
@@ -105,12 +97,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: screenWidth * 0.045,
   },
-
   icon: {
-width:screenWidth * 0.065,
+    width: screenWidth * 0.065,
     height: screenWidth * 0.065,
   },
-
 });
 
 export default Contact;

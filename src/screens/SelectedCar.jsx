@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CalculatorButton from '../components/CalculatorButton';
@@ -41,6 +41,7 @@ const SelectedCar = ({ route, navigation }) => {
   const [selectedLocation, setSelectedLocation] = useState(car.locations[0] || {});
   const [visibleCategory, setVisibleCategory] = useState(null);
   const [showDetails, setShowDetails] = useState({});
+  const [selectedComponent, setSelectedComponent] = useState({});
 
   useEffect(() => {
     if (car.carname) {
@@ -48,31 +49,23 @@ const SelectedCar = ({ route, navigation }) => {
     }
   }, [car.carname, navigation]);
 
-  useEffect(() => {
-    console.log('Selected Location Data:', selectedLocation);
-  }, [selectedLocation]);
-
-  const handleLocationChange = (locationName) => {
+  const handleLocationChange = useCallback((locationName) => {
     const foundLocation = car.locations.find(location => location.locationName === locationName);
     setSelectedLocation(foundLocation);
     setVisibleCategory(null);
     setShowDetails({});
-  };
+  }, [car.locations]);
 
-  const toggleCategoryVisibility = (category) => {
-    if (visibleCategory === category) {
-      setVisibleCategory(null);
-    } else {
-      setVisibleCategory(category);
-    }
-  };
+  const toggleCategoryVisibility = useCallback((category) => {
+    setVisibleCategory(prevCategory => (prevCategory === category ? null : category));
+    setShowDetails({});
+  }, []);
 
-  const toggleDetails = (category) => {
-    setShowDetails(prevState => ({
-      ...prevState,
-      [category]: !prevState[category],
+  const toggleDetails = useCallback((key) => {
+    setShowDetails(prevDetails => ({
+      [key]: !prevDetails[key],
     }));
-  };
+  }, []);
 
   const handlePhonePress = (phoneNumber) => {
     Linking.openURL(`tel:${phoneNumber}`);
@@ -96,7 +89,7 @@ const SelectedCar = ({ route, navigation }) => {
             <Picker
               selectedValue={selectedLocation.locationName}
               style={styles.dropdown}
-              onValueChange={(itemValue) => handleLocationChange(itemValue)}
+              onValueChange={handleLocationChange}
             >
               {car.locations.map((location, index) => (
                 <Picker.Item key={index} label={location.locationName} value={location.locationName} />
@@ -117,86 +110,35 @@ const SelectedCar = ({ route, navigation }) => {
                 <View>
                   {category === 'services' ? (
                     selectedLocation.services.map((service, serviceIndex) => (
-                      <View key={serviceIndex}>
-                        {service.components.map((component, componentIndex) => (
-                          <View key={componentIndex}>
-                            {Object.keys(component).map((subCategory, subCategoryIndex) => (
-                              <View key={subCategoryIndex}>
-                                <TouchableOpacity onPress={() => toggleDetails(`${category}_${serviceIndex}_${componentIndex}_${subCategoryIndex}`)}>
-                                  <View style={styles.detailsBox1}>
-                                    <Text style={styles.detailsLabel}>{categoryDisplayNames[subCategory]}</Text>
-                                  </View>
-                                </TouchableOpacity>
-                                {showDetails[`${category}_${serviceIndex}_${componentIndex}_${subCategoryIndex}`] && (
-                                  <View style={styles.detailsContainer}>
-                                    {component[subCategory]?.length > 0 ? (
-                                      component[subCategory].map((info, infoIndex) => (
-                                        <View key={infoIndex} style={styles.detailsBox}>
-                                          <Text style={styles.detailsLabel}>اسم الخدمة:</Text>
-                                          <Text style={styles.detailsLabel}>{info.ServiceStoreFullName || "N/A"}</Text>
-                                          <TouchableOpacity onPress={() => handleAddressPress(info.ServiceLocation)}>
-                                            <Text style={styles.detailsLabel}>الموقع:</Text>
-                                            <Text style={styles.detailsLabel}>{info.ServiceLocation || "N/A"}</Text>
-                                          </TouchableOpacity>
-                                          <TouchableOpacity onPress={() => handlePhonePress(info.ServicePhoneNumber)}>
-                                            <Text style={styles.detailsLabel}>تلفون:</Text>
-                                            <Text style={styles.detailsLabel}>{info.ServicePhoneNumber || "N/A"}</Text>
-                                          </TouchableOpacity>
-                                        </View>
-                                      ))
-                                    ) : (
-                                      <Text style={styles.detailsLabel}>No details available</Text>
-                                    )}
-                                  </View>
-                                )}
-                              </View>
-                            ))}
-                          </View>
-                        ))}
-                      </View>
+                      <ServiceItem
+                        key={serviceIndex}
+                        service={service}
+                        toggleDetails={toggleDetails}
+                        showDetails={showDetails}
+                        handleAddressPress={handleAddressPress}
+                        handlePhonePress={handlePhonePress}
+                        selectedComponent={selectedComponent}
+                        setSelectedComponent={setSelectedComponent}
+                      />
                     ))
                   ) : (
                     selectedLocation[category].map((store, storeIndex) => (
-                      <View key={storeIndex}>
-                        <TouchableOpacity onPress={() => toggleDetails(`${category}_${storeIndex}`)}>
-                          <View style={styles.detailsBox1}>
-                            <Text style={styles.detailsLabel}>{store.StoreName}</Text>
-                          </View>
-                        </TouchableOpacity>
-                        {showDetails[`${category}_${storeIndex}`] && (
-                          <View style={styles.detailsContainer}>
-                            {store.storeInfo.map((info, infoIndex) => (
-                              <View key={infoIndex} style={styles.detailsBox}>
-                                <Text style={styles.detailsText2}>{info.StoreFullName}</Text>
-                                <View style={styles.row1}>
-                                  <Text style={styles.cityName}>{info.locationFullName}</Text>
-                                  <Image source={placeholder} style={styles.icon}></Image>
-                                </View>
-                                <Text style={styles.detailsText3}>{info.time}</Text>
-                                <View style={styles.row}>
-                                  <TouchableOpacity style={styles.btn} onPress={() => handleAddressPress(info.location)}>
-                                    <Image source={location} style={styles.icon} />
-                                  </TouchableOpacity>
-                                  <TouchableOpacity style={styles.btn} onPress={() => handlePhonePress(info.phoneNumber)}>
-                                    <Image source={telephone} style={styles.icon} />
-                                  </TouchableOpacity>
-                                </View>
-                              </View>
-                            ))}
-                          </View>
-                        )}
-                      </View>
+                      <StoreItem
+                        key={storeIndex}
+                        store={store}
+                        toggleDetails={toggleDetails}
+                        showDetails={showDetails}
+                        handleAddressPress={handleAddressPress}
+                        handlePhonePress={handlePhonePress}
+                      />
                     ))
                   )}
                 </View>
               )}
             </View>
           )
-        )
+        ))}
         
-        
-        
-        )}
       </ScrollView>
       <CalculatorButton />
       <Contact />
@@ -204,13 +146,108 @@ const SelectedCar = ({ route, navigation }) => {
   );
 };
 
+const ServiceItem = ({ service, toggleDetails, showDetails, handleAddressPress, handlePhonePress, selectedComponent, setSelectedComponent }) => {
+  const componentKeys = ['winches', 'chargeonroad', 'dryclean']; // Since these are known keys
+
+  return (
+    <View>
+   
+      {componentKeys.map((key, index) => (
+        <View key={index}>
+          <TouchableOpacity onPress={() => toggleDetails(`${key}_${service.servicelocation}`)}>
+            <View style={styles.detailsBox1}>
+              <Text style={styles.detailsLabel}>{categoryDisplayNames[key] || key}</Text>
+            </View>
+          </TouchableOpacity>
+          {showDetails[`${key}_${service.servicelocation}`] && (
+            <DetailsView
+              details={service[key] || []}
+              handleAddressPress={handleAddressPress}
+              handlePhonePress={handlePhonePress}
+            />
+          )}
+        </View>
+      ))}
+    </View>
+  );
+};
+
+const StoreItem = ({ store, toggleDetails, showDetails, handleAddressPress, handlePhonePress }) => (
+  <View>
+    <TouchableOpacity onPress={() => toggleDetails(store.StoreName)}>
+      <View style={styles.detailsBox1}>
+        <Text style={styles.detailsLabel}>{store.StoreName}</Text>
+      </View>
+    </TouchableOpacity>
+    {showDetails[store.StoreName] && (
+      <DetailsView
+        details={store.storeInfo}
+        handleAddressPress={handleAddressPress}
+        handlePhonePress={handlePhonePress}
+      />
+    )}
+  </View>
+);const DetailsView = ({ details, handleAddressPress, handlePhonePress }) => (
+  details.length > 0 ? (
+    details.map((info, infoIndex) => (
+      <View key={infoIndex} style={styles.detailsBox}>
+        <Text style={styles.detailsText2}>
+          {info.StoreFullName || info.ServiceStoreFullName 
+        }
+        </Text>
+        <View style={styles.row1}>
+          <Text style={styles.cityName}>
+            {info.servicelocation || info.locationFullName || info.ServiceLocation 
+          }
+          </Text>
+          <Image source={placeholder} style={styles.icon} />
+        </View>
+        <Text style={styles.detailsText3}>{info.time 
+      }</Text>
+
+        <View style={styles.row}>
+          {/* First phone number */}
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => handlePhonePress(info.phoneNumber || info.ServicePhoneNumber)}
+          >
+            <Image source={telephone} style={styles.icon} />
+            <Text style={styles.bbold}></Text>
+          </TouchableOpacity>
+
+          {/* Second phone number */}
+          {info.phoneNumber2 && (
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => handlePhonePress(info.phoneNumber2)}
+            >
+              <Image source={telephone} style={styles.icon} />
+              <Text style={styles.bbold}>2</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Address button */}
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => handleAddressPress(info.location || info.ServiceLocation)}
+        >
+          <Image source={location} style={styles.icon2} />
+        </TouchableOpacity>
+      </View>
+    ))
+  ) : (
+    <Text style={styles.detailsLabel}>No details available</Text>
+  )
+);
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#4dad00',
     alignItems: 'center',
     paddingTop: screenHeight * 0.02,
-    paddingBottom: screenHeight * 0.04,
+    paddingBottom: screenHeight * 0.22,
   },
   carContainer: {
     padding: screenWidth * 0.0533,
@@ -285,48 +322,57 @@ const styles = StyleSheet.create({
   detailsText2: {
     fontSize: screenWidth * 0.0427,
     textAlign: 'right',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
-
   detailsText3: {
     fontSize: screenWidth * 0.0427,
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+  },
+  icon: {
+    width: screenWidth * 0.05,
+    height: screenWidth * 0.05,
+    resizeMode: 'contain',
+    marginRight:5,
   },
 
-  icon: {
-    width: screenWidth * 0.05, // Adjust size as needed
-    height: screenWidth * 0.05, // Adjust size as needed
-    resizeMode: 'contain',
-    alignSelf: 'flex-end',
+
+  icon2:{
+    width: screenWidth * 0.05,
+    height: screenWidth * 0.05,
+    marginLeft:0,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginBottom:15,
   },
   btn: {
     borderWidth: 1,
     borderRadius: 20,
     padding: 10,
-    paddingHorizontal: screenWidth * .15,
-
+    paddingHorizontal: screenWidth * 0.15,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
   cityName: {
     color: 'black',
     fontSize: screenWidth * 0.0427,
     textAlign: 'right',
-
+    width: screenWidth * 0.7, // Increase width as needed
   },
-
   row1: {
-
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginLeft: screenWidth * .68,
-    marginVertical: screenWidth * .03
-
+    alignItems: 'center', // Ensure vertical alignment
+    marginVertical: screenWidth * 0.03,
+    width: screenWidth * 0.9, // Adjust width to align items properly
+    justifyContent: 'space-between', // Distribute space between icon and text
   },
 
+  bbold:{
+
+fontWeight:'bold'
+  }
 });
 
 export default SelectedCar;
