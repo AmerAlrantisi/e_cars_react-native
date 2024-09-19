@@ -7,6 +7,13 @@ export const homeData = () => {
         url
       }
     },
+    phoneNumber,
+     mainImage{
+      asset->{
+        url
+      }
+    },
+    
     cars[]{
       carname,
       logoImage {

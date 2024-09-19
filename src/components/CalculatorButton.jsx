@@ -50,7 +50,7 @@ const CalculatorButton = () => {
               onChangeText={setKilos}
               placeholder="عدد الكيلو واط"
             />
-            <Button title="حساب" onPress={calculateResult} color="#1d99ee" />
+            <Button title="حساب" onPress={calculateResult} color="#4dad00" />
             {result !== null && (
               <Text style={styles.resultText}>
                 تكلفة الشحنة: {result.toFixed(2)} دينار
@@ -114,14 +114,14 @@ const styles = StyleSheet.create({
     padding: screenWidth * 0.03,
     marginBottom: screenHeight * 0.02,
     fontSize: screenWidth * 0.05,
-    fontFamily: 'arabicFont', // Ensure the font supports Arabic characters
-    writingDirection: 'rtl', // Ensures right-to-left text layout
+    fontFamily: 'System', 
+    writingDirection: 'rtl', 
   },
   resultText: {
     fontSize: screenWidth * 0.05,
     marginTop: screenHeight * 0.02,
-    fontFamily: 'arabicFont', // Ensure the font supports Arabic characters
-    writingDirection: 'rtl', // Ensures right-to-left text layout
+    fontFamily: 'System', 
+    writingDirection: 'rtl', 
   },
   closeButton: {
     marginTop: screenHeight * 0.02,

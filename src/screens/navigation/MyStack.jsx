@@ -6,6 +6,7 @@ import SelectedCar from '../SelectedCar';
 import { Text, View, StyleSheet } from 'react-native';
 import WebsiteScreen from '../WebsiteScreen';
 import PrivacyPolicyScreen from '../PrivacyPolicyScreen';
+import SliderDetails from '../SliderDetails';
 import TermsConditionsScreen from '../TermsConditionsScreen';
 
 // Define a custom header component
@@ -73,6 +74,12 @@ const MyStack = () => {
         name="SelectedCar"
         component={SelectedCar}
       />
+
+<Stack.Screen
+        name="SliderDetails"
+        component={SliderDetails}
+      />
+
 
 <Stack.Screen
         name="WebsiteScreen"

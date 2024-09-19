@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient'; 
 import client from '../client';
 import { homeData } from '../queries';
 import Contact from '../components/contact';
 import CalculatorButton from '../components/CalculatorButton';
 import ImageSlider from '../components/ImageSlider';
+import AdPopup from '../components/AdPopup';  // Import your popup component
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
@@ -13,50 +15,29 @@ const HomeScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [cars, setCars] = useState([]);
   const [images, setImages] = useState([]);
-  const [scrollX, setScrollX] = useState(0);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const scrollViewRef = useRef(null);
-
-
-  const handlePrivacyPolicyPress = () => {
-    navigation.navigate('PrivacyPolicyScreen'); // Navigates to the Privacy Policy screen
-  };
-  
-  const handleTermsPress = () => {
-    navigation.navigate('TermsConditionsScreen'); // Navigates to the Terms & Conditions screen
-  };
-  const imagesss = [
-    'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg',
-    'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg',
-    'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg',
-    'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg',
-    'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg',
-    'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg',
-  ];
+  const [mainImage, setMainImage] = useState(null); // New state for mainImage
+  const [phoneNumber, setPhoneNumber] = useState(''); // New state for phoneNumber
+  const [isPopupVisible, setIsPopupVisible] = useState(true); // Set popup to visible initially
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (images.length > 0) {
-      const interval = setInterval(() => {
-        autoScroll();
-      }, 5400);
-
-      return () => clearInterval(interval);
-    }
-  }, [scrollX, images]);
-
   const fetchData = async () => {
     try {
       const result = await client.fetch(homeData());
-      console.log('Fetched data:', JSON.stringify(result, null, 2));
       setData(result);
 
       if (result.length > 0) {
-        setCars(result[0].cars);
-        setImages(result[0].images || []);
+        const homeInfo = result[0];
+
+        // Set cars and images
+        setCars(homeInfo.cars);
+        setImages(homeInfo.images || []);
+
+        // Set mainImage and phoneNumber
+        setMainImage(homeInfo.mainImage?.asset?.url || null); // Use null if mainImage doesn't exist
+        setPhoneNumber(homeInfo.phoneNumber || ''); // Use empty string if phoneNumber doesn't exist
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -67,174 +48,86 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('SelectedCar', { car });
   };
 
-  const chunkArray = (myArray, chunk_size) => {
-    let index = 0;
-    let arrayLength = myArray.length;
-    let tempArray = [];
-
-    for (index = 0; index < arrayLength; index += chunk_size) {
-      let myChunk = myArray.slice(index, index + chunk_size);
-      tempArray.push(myChunk);
-    }
-
-    return tempArray;
-  };
-
-  const autoScroll = () => {
-    if (scrollViewRef.current) {
-      const totalWidth = ScreenWidth * (images.length + 2);
-      const nextIndex = scrollX + ScreenWidth >= totalWidth ? ScreenWidth : scrollX + ScreenWidth;
-
-      if (scrollX + ScreenWidth >= totalWidth) {
-        scrollViewRef.current.scrollTo({ x: ScreenWidth, animated: false });
-        setScrollX(ScreenWidth);
-      } else {
-        scrollViewRef.current.scrollTo({ x: nextIndex, animated: true });
-        setScrollX(nextIndex);
-      }
-    }
-  };
-
-  const handleScroll = (event) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.floor(contentOffsetX / ScreenWidth);
-    setCurrentSlide(index);
-  };
-
-  const handleMomentumScrollEnd = (event) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const totalWidth = ScreenWidth * (images.length + 2);
-
-    if (contentOffsetX === 0) {
-      scrollViewRef.current.scrollTo({ x: totalWidth - ScreenWidth, animated: false });
-    } else if (contentOffsetX === totalWidth - ScreenWidth) {
-      scrollViewRef.current.scrollTo({ x: ScreenWidth, animated: false });
-    }
-  };
-
-  const carsChunks = chunkArray(cars, 2);
-
-  const renderPaginationDots = () => {
-    const totalDots = images.length;
-    const maxVisibleDots = 5;
-    const dots = [];
-
-    const start = Math.max(0, currentSlide - 2);
-    const end = Math.min(totalDots, start + maxVisibleDots);
-
-    for (let i = start; i < end; i++) {
-      const opacity = i === currentSlide ? 1 : i === currentSlide - 1 || i === currentSlide + 1 ? 0.7 : 0.3;
-      dots.push(
-        <View
-          key={i}
-          style={[
-            styles.dot,
-            { opacity, backgroundColor: i === currentSlide ? 'white' : 'gray' }
-          ]}
-        />
-      );
-    }
-
-    return dots;
-  };
+  const renderCarItem = ({ item }) => (
+    <TouchableOpacity
+      key={item.carname}
+      style={styles.box}
+      onPress={() => navigateToSelectedCar(item)}
+    >
+      <Image source={{ uri: item.logoImage?.asset?.url }} style={styles.btnimage} />
+      <Text style={styles.carname}>{item.carname}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <>
-      <ScrollView contentContainerStyle={styles.container}>
-        {images.length > 0 && (
-          <ImageSlider images={images.map(image => image.asset?.url)} />
-        )}
-
-        {carsChunks.map((chunk, index) => (
-          <View key={index} style={styles.row}>
-            {chunk.map((car) => (
-              <TouchableOpacity
-                key={car.carname}
-                style={styles.box}
-                onPress={() => navigateToSelectedCar(car)}
-              >
-                <Image source={{ uri: car.logoImage?.asset?.url }} style={styles.btnimage} />
-                <Text style={styles.carname}>{car.carname}</Text>
-              </TouchableOpacity>
-            ))}
+    <LinearGradient colors={['#4dad00', 'white']} style={styles.gradient}>
+      <FlatList
+        data={cars}
+        renderItem={renderCarItem}
+        keyExtractor={(item) => item.carname}
+        numColumns={3}
+        contentContainerStyle={styles.container}
+        ListHeaderComponent={images.length > 0 ? <ImageSlider images={images.map(image => image.asset?.url)} /> : null}
+        ListFooterComponent={
+          <View style={styles.footer}>
+            <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicyScreen')}>
+              <Text style={styles.footerLink}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('TermsConditionsScreen')}>
+              <Text style={styles.footerLink}>Terms and Conditions</Text>
+            </TouchableOpacity>
           </View>
-        ))}
-  <View style={styles.footer}>
-          <TouchableOpacity onPress={handlePrivacyPolicyPress}>
-            <Text style={styles.footerLink}>Privacy Policy</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleTermsPress}>
-            <Text style={styles.footerLink}>Terms and Conditions</Text>
-          </TouchableOpacity>
-        </View>
-
-      </ScrollView>
+        }
+      />
 
       <CalculatorButton />
       <Contact />
-    </>
+
+      {/* Render AdPopup */}
+      <AdPopup 
+        visible={isPopupVisible} 
+        onClose={() => setIsPopupVisible(false)} 
+        mainImage={mainImage} // Pass the mainImage prop
+        phoneNumber={phoneNumber} // Pass the phoneNumber prop
+      />
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
-    backgroundColor: '#4dad00',
-    flexGrow: 1,
-    alignItems: 'center',
     paddingBottom: ScreenHeight * 0.22,
   },
-  imageScrollContainer: {
-    maxHeight: 250,
-  },
-  image: {
-    width: ScreenWidth,
-    height: 200,
-    borderWidth: 3,
-    borderColor: 'white',
-  },
   btnimage: {
-    width: 150,
-    height: 120,
-    borderRadius: 15,
+    width: 100,
+    height: 80,
+    borderRadius: 10,
   },
   carname: {
     color: 'black',
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: 'bold',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
+    textAlign: 'center',
   },
   box: {
-    width: ScreenWidth * 0.45, // Adjust width as needed
-    height: 200, // Set a fixed height
+    width: ScreenWidth * 0.3,
+    height: 180,
     padding: 10,
-    backgroundColor: '#66FF00',
+    backgroundColor: 'white',
     borderRadius: 15,
-    margin: 10,
+    margin: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 5,
-  },
-
   footer: {
     marginTop: 20,
     alignItems: 'center',
   },
   footerLink: {
-    color: '#007BFF', // Blue link color
+    color: '#007BFF',
     textDecorationLine: 'underline',
     fontSize: 16,
     marginBottom: 10,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Modal, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Linking } from 'react-native';
+import { View, TouchableOpacity, Modal, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Linking, Alert } from 'react-native';
 import icon from '../assets/images/facebook.png';
 import { Image } from 'react-native-elements';
 
@@ -17,15 +17,23 @@ const Contact = () => {
     setModalVisible(false);
   };
 
-  const openFacebookGroup = () => {
-    closeModal(); // Close the modal before navigating
-    Linking.openURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi'); // Open Facebook group URL
+  const openFacebookGroup = async () => {
+    try {
+      const supported = await Linking.canOpenURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi');
+      if (supported) {
+        Linking.openURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi');
+      } else {
+        Alert.alert('Error', 'Unable to open link. Please try again.');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Something went wrong.');
+    }
   };
 
   return (
     <>
       <TouchableOpacity style={styles.fab} onPress={openModal}>
-        <Image source={icon} style={styles.icon}></Image>
+        <Image source={icon} style={styles.icon} />
       </TouchableOpacity>
 
       <Modal
@@ -36,12 +44,13 @@ const Contact = () => {
       >
         <TouchableWithoutFeedback onPress={closeModal}>
           <View style={styles.modalContainer}>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback>
               <View style={styles.modalContent}>
                 <Text style={styles.title}>فيسبوك </Text>
-                <TouchableOpacity onPress={openFacebookGroup} style={styles.closeButton}>
-                  <Text style={styles.closeButtonText}>زيارة</Text>
+                <TouchableOpacity onPress={openFacebookGroup} style={styles.visitButton}>
+                  <Text style={styles.buttonText}>زيارة</Text>
                 </TouchableOpacity>
+               
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -86,14 +95,21 @@ const styles = StyleSheet.create({
     marginBottom: screenHeight * 0.02,
     textAlign: 'center',
   },
-  closeButton: {
+  visitButton: {
     marginTop: screenHeight * 0.02,
     backgroundColor: '#4dad00',
     padding: screenWidth * 0.03,
     borderRadius: screenWidth * 0.03,
     alignItems: 'center',
   },
-  closeButtonText: {
+  closeButton: {
+    marginTop: screenHeight * 0.02,
+    backgroundColor: '#f44336',
+    padding: screenWidth * 0.03,
+    borderRadius: screenWidth * 0.03,
+    alignItems: 'center',
+  },
+  buttonText: {
     color: 'white',
     fontSize: screenWidth * 0.045,
   },
