@@ -6,7 +6,8 @@ import { homeData } from '../queries';
 import Contact from '../components/contact';
 import CalculatorButton from '../components/CalculatorButton';
 import ImageSlider from '../components/ImageSlider';
-import AdPopup from '../components/AdPopup';  // Import your popup component
+import AdPopup from '../components/AdPopup';
+import icon2 from '../assets/images/phone.png';
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
@@ -15,9 +16,9 @@ const HomeScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [cars, setCars] = useState([]);
   const [images, setImages] = useState([]);
-  const [mainImage, setMainImage] = useState(null); // New state for mainImage
-  const [phoneNumber, setPhoneNumber] = useState(''); // New state for phoneNumber
-  const [isPopupVisible, setIsPopupVisible] = useState(true); // Set popup to visible initially
+  const [mainImage, setMainImage] = useState(null); 
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isPopupVisible, setIsPopupVisible] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -31,13 +32,10 @@ const HomeScreen = ({ navigation }) => {
       if (result.length > 0) {
         const homeInfo = result[0];
 
-        // Set cars and images
-        setCars(homeInfo.cars);
+        setCars(homeInfo.cars || []);
         setImages(homeInfo.images || []);
-
-        // Set mainImage and phoneNumber
-        setMainImage(homeInfo.mainImage?.asset?.url || null); // Use null if mainImage doesn't exist
-        setPhoneNumber(homeInfo.phoneNumber || ''); // Use empty string if phoneNumber doesn't exist
+        setMainImage(homeInfo.mainImage?.asset?.url || null);
+        setPhoneNumber(homeInfo.phoneNumber || '');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -48,47 +46,44 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('SelectedCar', { car });
   };
 
-  const renderCarItem = ({ item }) => (
-    <TouchableOpacity
-      key={item.carname}
-      style={styles.box}
-      onPress={() => navigateToSelectedCar(item)}
-    >
-      <Image source={{ uri: item.logoImage?.asset?.url }} style={styles.btnimage} />
+  const CarItem = React.memo(({ item, onPress }) => (
+    <TouchableOpacity style={styles.box} onPress={onPress}>
+      {item.logoImage?.asset?.url ? (
+        <Image source={{ uri: item.logoImage.asset.url }} style={styles.btnimage} />
+      ) : (
+        <View style={styles.placeholderImage} />
+      )}
       <Text style={styles.carname}>{item.carname}</Text>
     </TouchableOpacity>
+  ));
+
+  const renderCarItem = ({ item }) => (
+    <CarItem item={item} onPress={() => navigateToSelectedCar(item)} />
   );
 
   return (
     <LinearGradient colors={['#4dad00', 'white']} style={styles.gradient}>
-      <FlatList
-        data={cars}
-        renderItem={renderCarItem}
-        keyExtractor={(item) => item.carname}
-        numColumns={3}
-        contentContainerStyle={styles.container}
-        ListHeaderComponent={images.length > 0 ? <ImageSlider images={images.map(image => image.asset?.url)} /> : null}
-        ListFooterComponent={
-          <View style={styles.footer}>
-            <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicyScreen')}>
-              <Text style={styles.footerLink}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('TermsConditionsScreen')}>
-              <Text style={styles.footerLink}>Terms and Conditions</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
+   <FlatList
+  data={cars}
+  renderItem={({ item }) => (
+    <CarItem item={item} onPress={() => navigateToSelectedCar(item)} />
+  )}
+  keyExtractor={(item) => item.carname}
+  numColumns={3}
+  contentContainerStyle={styles.container}
+  initialNumToRender={5}
+  maxToRenderPerBatch={5}
+  windowSize={10}
+  ListHeaderComponent={images.length > 0 ? <ImageSlider images={images.map(image => image.asset?.url)} /> : null}// here is the reson of warning 
 
+/>
       <CalculatorButton />
-      <Contact />
-
-      {/* Render AdPopup */}
+      <Contact phoneNumber={phoneNumber} />
       <AdPopup 
         visible={isPopupVisible} 
         onClose={() => setIsPopupVisible(false)} 
-        mainImage={mainImage} // Pass the mainImage prop
-        phoneNumber={phoneNumber} // Pass the phoneNumber prop
+        mainImage={mainImage} 
+        phoneNumber={phoneNumber} 
       />
     </LinearGradient>
   );
@@ -121,16 +116,6 @@ const styles = StyleSheet.create({
     margin: 5,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  footer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  footerLink: {
-    color: '#007BFF',
-    textDecorationLine: 'underline',
-    fontSize: 16,
-    marginBottom: 10,
   },
 });
 

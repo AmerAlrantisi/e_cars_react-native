@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
-import { ScreenWidth } from 'react-native-elements/dist/helpers';
+import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
 
 const AdPopup = ({ visible, onClose, mainImage, phoneNumber }) => {
   // Function to handle phone call
@@ -27,12 +27,12 @@ const AdPopup = ({ visible, onClose, mainImage, phoneNumber }) => {
           {/* Render the buttons row */}
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text style={styles.closeButtonText}>X</Text>
             </TouchableOpacity>
 
             {phoneNumber && (
               <TouchableOpacity onPress={handleCall} style={styles.phoneButton}>
-                <Image source={require('../assets/images/telephone.png')} style={styles.phoneIcon} />
+                <Image source={require('../assets/images/phone.png')} style={styles.phoneIcon} />
               </TouchableOpacity>
             )}
           </View>
@@ -53,13 +53,13 @@ const styles = StyleSheet.create({
     width: ScreenWidth*.8,
 
     padding: 80,
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
   },
   image: {
-    width: 300,
-    height: 180,
+    width:ScreenWidth*.9,
+    height:  ScreenHeight*.4,
     marginBottom: 20,
     borderRadius: 10,
   },
@@ -73,17 +73,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#4dad00',
     borderRadius: 5,
     marginRight: 10,
+    
   },
   closeButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    paddingHorizontal:19,
   },
   phoneButton: {
-    padding: 9,
+    padding: 8.5,
     backgroundColor: '#4dad00',
     borderRadius: 5,
     marginRight: 10,
-    paddingHorizontal:20,
+    paddingHorizontal:22,
     
 
   },

@@ -81,7 +81,7 @@ const SelectedCar = ({ route, navigation }) => {
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.carContainer}>
-          {car.logoImage && <Image source={{ uri: car.logoImage.asset.url }} style={styles.image} />}
+          {car.logoImage && <Image source={{ uri: car.logoImage.asset.url }} style={styles.image}  resizeMode="contain"/>}
         </View>
 
         <View style={styles.dropdownContainer}>

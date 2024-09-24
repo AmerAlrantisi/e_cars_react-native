@@ -42,22 +42,26 @@ const CalculatorButton = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>لحساب تكلفة الشحنة</Text>
+            <Text style={styles.modalText} allowFontScaling={false}>لحساب تكلفة الشحنة</Text>
             <TextInput
               style={styles.textInput}
               keyboardType="numeric"
               value={kilos}
               onChangeText={setKilos}
               placeholder="عدد الكيلو واط"
+              allowFontScaling={false}
             />
-            <Button title="حساب" onPress={calculateResult} color="#4dad00" />
+            {/* <Button title="حساب" onPress={calculateResult} color="#4dad00" /> */}
+            <TouchableOpacity onPress={calculateResult} style={styles.calculatebutton}>
+              <Text style={styles.closeButtonText} allowFontScaling={false}>حساب</Text>
+            </TouchableOpacity>
             {result !== null && (
-              <Text style={styles.resultText}>
+              <Text style={styles.resultText} allowFontScaling={false}>
                 تكلفة الشحنة: {result.toFixed(2)} دينار
               </Text>
             )}
             <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>اغلاق</Text>
+              <Text style={styles.closeButtonText} allowFontScaling={false}>اغلاق</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -84,9 +88,9 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   keyImage: {
-    width: screenWidth * 0.1, // Adjust size as needed
-    height: screenWidth * 0.1, // Adjust size as needed
-    resizeMode: 'contain', // This will ensure the image fits nicely
+    width: screenWidth * 0.1,
+    height: screenWidth * 0.1,
+    resizeMode: 'contain',
   },
   modalContainer: {
     flex: 1,
@@ -127,6 +131,13 @@ const styles = StyleSheet.create({
     marginTop: screenHeight * 0.02,
     backgroundColor: '#4dad00',
     padding: screenWidth * 0.03,
+    borderRadius: screenWidth * 0.03,
+    alignItems: 'center',
+  },
+  calculatebutton:{
+    marginTop: screenHeight * 0.02,
+    backgroundColor: '#4dad00',
+    padding: screenWidth * 0.027,
     borderRadius: screenWidth * 0.03,
     alignItems: 'center',
   },

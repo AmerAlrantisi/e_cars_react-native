@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Modal, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Linking, Alert } from 'react-native';
 import icon from '../assets/images/facebook.png';
+import icon23 from '../assets/images/phone.png';
+import icon2 from '../assets/images/operator.png';
 import { Image } from 'react-native-elements';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-const Contact = () => {
+const Contact = (phoneNumber) => {
+  const handleCall = () => {
+    if (phoneNumber) {
+      Linking.openURL(`tel:${phoneNumber}`);
+    }
+  };
   const [modalVisible, setModalVisible] = useState(false);
 
   const openModal = () => {
@@ -17,23 +24,15 @@ const Contact = () => {
     setModalVisible(false);
   };
 
-  const openFacebookGroup = async () => {
-    try {
-      const supported = await Linking.canOpenURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi');
-      if (supported) {
-        Linking.openURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi');
-      } else {
-        Alert.alert('Error', 'Unable to open link. Please try again.');
-      }
-    } catch (err) {
-      Alert.alert('Error', 'Something went wrong.');
-    }
+   const openFacebookGroup = () => {
+    closeModal(); // Close the modal before navigating
+    Linking.openURL('https://www.facebook.com/groups/400615952771950/?ref=share&mibextid=KtfwRi'); // Open Facebook group URL
   };
 
   return (
     <>
       <TouchableOpacity style={styles.fab} onPress={openModal}>
-        <Image source={icon} style={styles.icon} />
+        <Image source={icon2} style={styles.icon} />
       </TouchableOpacity>
 
       <Modal
@@ -46,12 +45,22 @@ const Contact = () => {
           <View style={styles.modalContainer}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContent}>
-                <Text style={styles.title}>فيسبوك </Text>
+                <Text style={styles.title}>تواصل معنا</Text>
+<View style={styles.row}>
                 <TouchableOpacity onPress={openFacebookGroup} style={styles.visitButton}>
-                  <Text style={styles.buttonText}>زيارة</Text>
+                <Image source={icon} style={styles.icon} />
                 </TouchableOpacity>
+
+
+                {phoneNumber && (
+              <TouchableOpacity onPress={handleCall} style={styles.visitButton}>
+                <Image source={require('../assets/images/phone.png')} style={styles.icon} />
+              </TouchableOpacity>
+            )}
+</View>
                
               </View>
+
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
@@ -84,8 +93,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
+
     width: screenWidth * 0.8,
-    padding: screenWidth * 0.05,
+    padding: screenWidth * 0.15,
     backgroundColor: 'white',
     borderRadius: screenWidth * 0.04,
     alignItems: 'center',
@@ -97,6 +107,7 @@ const styles = StyleSheet.create({
   },
   visitButton: {
     marginTop: screenHeight * 0.02,
+    margin:10,
     backgroundColor: '#4dad00',
     padding: screenWidth * 0.03,
     borderRadius: screenWidth * 0.03,
@@ -117,6 +128,15 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.065,
     height: screenWidth * 0.065,
   },
+
+
+  row:{
+
+    flexDirection: 'row',
+    alignItems: 'center',
+   paddingHorizontal:10,
+  }
+
 });
 
 export default Contact;

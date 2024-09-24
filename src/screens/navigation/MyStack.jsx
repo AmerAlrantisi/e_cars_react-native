@@ -37,6 +37,9 @@ const MyStack = () => {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
+        options={{
+          
+          headerTitle:'JO EV'}}
       />
 
 <Stack.Screen
